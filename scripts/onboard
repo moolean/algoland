@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+STATE_DIR="$ROOT/.state"
+IMG="onboarding-game:latest"
+CTR="onboarding-game-dev"
+mkdir -p "$STATE_DIR" "$ROOT/submissions"
+
+usage(){
+  cat <<USAGE
+用法: ./scripts/onboard <init|precheck|run|check|score|clean> [L1|L2|L3|L4|L5] [--all]
+USAGE
+}
+
+level_path(){
+  case "$1" in
+    L1) echo "$ROOT/levels/L1_git_terminal" ;;
+    L2) echo "$ROOT/levels/L2_debug" ;;
+    L3) echo "$ROOT/levels/L3_ssh" ;;
+    L4) echo "$ROOT/levels/L4_python_env" ;;
+    L5) echo "$ROOT/levels/L5_model_api" ;;
+    *) echo "" ;;
+  esac
+}
+
+init(){
+  podman build -t "$IMG" -f "$ROOT/containers/Containerfile" "$ROOT" >/dev/null
+  if podman ps -a --format '{{.Names}}' | grep -q "^${CTR}$"; then
+    podman rm -f "$CTR" >/dev/null || true
+  fi
+  podman run -d --name "$CTR" -w /workspace \
+    -v "$ROOT":/workspace:Z \
+    "$IMG" sleep infinity >/dev/null
+  echo "initialized" > "$STATE_DIR/status"
+  echo "✅ 容器就绪: $CTR"
+}
+
+precheck(){
+  local lv="$1" lp
+  lp="$(level_path "$lv")"
+  [[ -n "$lp" ]] || { echo "未知关卡: $lv"; exit 1; }
+  if [[ -f "$lp/precheck.sh" ]]; then
+    bash "$lp/precheck.sh"
+  else
+    echo "该关无预检，默认进入任务。"
+  fi
+}
+
+run_level(){
+  local lv="$1" lp
+  lp="$(level_path "$lv")"
+  [[ -n "$lp" ]] || { echo "未知关卡: $lv"; exit 1; }
+  echo "\n==== $lv 任务说明 ===="
+  cat "$lp/mission.md"
+  echo "\n👉 完成后执行: ./scripts/onboard check $lv"
+}
+
+check_level(){
+  local lv="$1" lp
+  lp="$(level_path "$lv")"
+  [[ -n "$lp" ]] || { echo "未知关卡: $lv"; exit 1; }
+  bash "$lp/check.sh"
+}
+
+score(){
+  echo "\n📊 当前得分"
+  for lv in L1 L2 L3 L4 L5; do
+    file="$STATE_DIR/${lv}.score"
+    if [[ -f "$file" ]]; then
+      printf "- %s: %s\n" "$lv" "$(cat "$file")"
+    else
+      printf "- %s: 未完成\n" "$lv"
+    fi
+  done
+}
+
+clean(){
+  if podman ps -a --format '{{.Names}}' | grep -q "^${CTR}$"; then
+    podman rm -f "$CTR" >/dev/null || true
+  fi
+  podman image rm -f "$IMG" >/dev/null 2>&1 || true
+  rm -rf "$STATE_DIR/tmp"
+  echo "✅ 清理完成（容器/镜像/临时状态）"
+}
+
+cmd="${1:-}"
+case "$cmd" in
+  init) init ;;
+  precheck) precheck "${2:-}" ;;
+  run) run_level "${2:-}" ;;
+  check) check_level "${2:-}" ;;
+  score) score ;;
+  clean) clean ;;
+  *) usage; exit 1 ;;
+esac

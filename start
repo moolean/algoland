@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+
+ALGOLAND_LANG="${ALGOLAND_LANG:-}"
+
+say() {
+  local zh="$1" en="$2"
+  case "$ALGOLAND_LANG" in
+    zh) printf "%b\n" "$zh" ;;
+    *) printf "%b\n" "$en" ;;
+  esac
+}
+
+choose_language() {
+  local choice
+  if [[ -z "$ALGOLAND_LANG" ]] && [[ -t 0 ]]; then
+    printf "\nChoose language / 选择语言:\n"
+    printf "1) English\n"
+    printf "2) 中文\n"
+    printf "Select [1/2, default 1]: "
+    read -r choice || true
+    case "${choice:-1}" in
+      2) ALGOLAND_LANG="zh" ;;
+      *) ALGOLAND_LANG="en" ;;
+    esac
+  fi
+  if [[ -z "$ALGOLAND_LANG" ]]; then
+    ALGOLAND_LANG="en"
+  fi
+}
+
+choose_language
+export ALGOLAND_LANG
+cat > "$ROOT/.state/lang.env" <<EOF
+ALGOLAND_LANG=$ALGOLAND_LANG
+EOF
+
+printf "\n"
+say "🎮 欢迎来到 AlgoLand" "🎮 Welcome to AlgoLand"
+say "一个给算法同学边玩边学的终端世界。\n" "A playful terminal onboarding world for algorithm engineers.\n"
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || return 1
+}
+
+if ! need_cmd podman; then
+  cat <<'MSG'
+❌ 未检测到 podman
+请先执行（macOS）：
+  brew install podman
+安装后再运行：
+  ./start
+MSG
+  exit 1
+fi
+
+if ! podman machine list --format '{{.Name}} {{.Running}}' | grep -q 'true'; then
+  echo "ℹ️  Podman machine 未运行，尝试自动启动..."
+  if ! podman machine start >/dev/null 2>&1; then
+    cat <<'MSG'
+❌ Podman machine 启动失败
+请依次执行：
+  podman machine init
+  podman machine start
+然后重试：
+  ./start
+MSG
+    exit 1
+  fi
+fi
+
+mkdir -p submissions .state
+
+choose_mode() {
+  local has_progress=0 choice
+  if [[ -f "$ROOT/.state/progress.env" ]]; then
+    has_progress=1
+  fi
+
+  if [[ "${1:-}" == "--fresh" ]]; then
+    "$ROOT/scripts/quest" reset >/dev/null
+    return 0
+  fi
+  if [[ "${1:-}" == "--resume" ]]; then
+    return 0
+  fi
+
+  if [[ $has_progress -eq 1 ]] && [[ -t 0 ]]; then
+    say "检测到已有进度。" "Existing progress detected."
+    say "1) Resume 继续上次进度" "1) Resume your previous progress"
+    say "2) New game 从头开始" "2) New game from the beginning"
+    if [[ "$ALGOLAND_LANG" == "zh" ]]; then
+      printf "选择 [1/2，默认 1]: "
+    else
+      printf "Choose [1/2, default 1]: "
+    fi
+    read -r choice || true
+    case "${choice:-1}" in
+      2) "$ROOT/scripts/quest" reset >/dev/null ;;
+      *) : ;;
+    esac
+  fi
+}
+
+choose_mode "${1:-}"
+
+say "✅ 环境自检通过，正在初始化隔离容器..." "✅ Environment check passed. Initializing the isolated runtime..."
+"$ROOT/scripts/onboard" init
+
+printf "\n"
+say "🚀 启动 AlgoLand 分屏世界..." "🚀 Launching the AlgoLand split-terminal world..."
+chmod +x "$ROOT/scripts/quest" "$ROOT/quest" "$ROOT/tui.py" "$ROOT/scripts/start_tmux_ui.sh" "$ROOT/scripts/dashboard.py" "$ROOT/scripts/lesson_viewer.py"
+"$ROOT/scripts/start_tmux_ui.sh"

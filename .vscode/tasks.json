@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {"label": "Onboard: Start", "type": "shell", "command": "./start"},
+    {"label": "Onboard: Check L1", "type": "shell", "command": "./scripts/onboard check L1"},
+    {"label": "Onboard: Score", "type": "shell", "command": "./scripts/onboard score"}
+  ]
+}

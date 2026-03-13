@@ -1,0 +1,11 @@
+.state/
+player/
+submissions/
+/lab
+/out
+/lesson.md
+/typescript
+*.log
+__pycache__/
+*.pyc
+.DS_Store
