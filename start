@@ -33,6 +33,7 @@ choose_language() {
 
 choose_language
 export ALGOLAND_LANG
+mkdir -p "$ROOT/.state"
 cat > "$ROOT/.state/lang.env" <<EOF
 ALGOLAND_LANG=$ALGOLAND_LANG
 EOF
