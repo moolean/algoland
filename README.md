@@ -72,14 +72,12 @@ Recommended preview ideas:
 ## Quick start
 
 ```bash
-cd onboarding-game
 ./start
 ```
 
 If executable permissions are missing:
 
 ```bash
-cd onboarding-game
 bash start
 ```
 
