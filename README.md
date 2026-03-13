@@ -1,9 +1,28 @@
+<div align="center">
+
 # AlgoLand
 
-**English** | [中文](./README.zh-CN.md)
+**English** · [中文](./README.zh-CN.md)
 
-> A playful terminal onboarding world for algorithm engineers.  
-> Learn by playing: terminal, Git, Python envs, PDB, SSH, and LLM APIs.
+<p>
+  <strong>A playful terminal onboarding world for algorithm engineers.</strong><br/>
+  Learn by playing: terminal, Git, Python envs, PDB, SSH, and LLM APIs.
+</p>
+
+<p>
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#what-you-learn">Curriculum</a> ·
+  <a href="#image--preview">Preview</a> ·
+  <a href="./README.zh-CN.md">中文介绍</a>
+</p>
+
+<p>
+  <img alt="stage count" src="https://img.shields.io/badge/stages-6-7C3AED?style=for-the-badge" />
+  <img alt="ui" src="https://img.shields.io/badge/interface-tmux%20split%20ui-06B6D4?style=for-the-badge" />
+  <img alt="learning mode" src="https://img.shields.io/badge/learning-patch%20%2B%20debug%20%2B%20play-10B981?style=for-the-badge" />
+</p>
+
+</div>
 
 ---
 
@@ -18,15 +37,17 @@ It is built for people who:
 - learn better by debugging and modifying existing code
 - want a faster path into real engineering basics
 
-## Why it is different
-- **Playable** — every step is an interactive task
-- **Terminal-first** — learn in the real environment, not screenshots
-- **Beginner-friendly** — lessons explain concepts without dumping the full answer
-- **Patch-oriented** — you mostly modify existing code instead of writing everything from scratch
-- **Fast feedback** — the game checks your progress as you go
-- **Built for algorithm engineers** — later stages focus on debugging, data scripts, SSH, and LLM APIs
+## Why it feels different
+
+| Traditional onboarding | AlgoLand |
+|---|---|
+| Read first | Play first |
+| Static docs | Split terminal UI |
+| Toy demos | Real patch/debug tasks |
+| Delayed feedback | Immediate step validation |
 
 ## What you learn
+
 1. **L0 — Vim + terminal basics**
 2. **L1 — Terminal + Git**
 3. **L2 — Python environments**
@@ -34,13 +55,29 @@ It is built for people who:
 5. **L4 — SSH basics**
 6. **L5 — LLM API basics**
 
+## Image / Preview
+
+> Replace the placeholder below with your screenshot or GIF.  
+> Suggested path: `assets/algoland.png`
+
+<p align="center">
+  <img src="./assets/algoland.png" alt="AlgoLand split terminal preview" width="100%" />
+</p>
+
+Recommended preview ideas:
+- the startup screen
+- top lesson pane + bottom shell pane
+- a learner fixing code and submitting a step
+
 ## Quick start
+
 ```bash
 cd onboarding-game
 ./start
 ```
 
 If executable permissions are missing:
+
 ```bash
 cd onboarding-game
 bash start
@@ -51,12 +88,14 @@ On startup, AlgoLand will ask you:
 - whether to **Resume** or start a **New game**
 
 You can also force progress mode:
+
 ```bash
 ./start --resume
 ./start --fresh
 ```
 
 ## Controls
+
 **Lesson pane**
 - `j / k` — scroll
 - `PgUp / PgDn` — page up/down
@@ -76,23 +115,31 @@ You can also force progress mode:
 ```
 
 ## Requirements
+
 - `podman`
 - `tmux`
 - `git` (recommended)
 
 macOS example:
+
 ```bash
 brew install podman tmux git
 ```
 
-## Image placeholder
+## Design philosophy
 
-> Add a split-terminal screenshot or GIF here.
+AlgoLand teaches the way many engineers actually learn:
+- understand a task
+- patch something real
+- run it
+- observe the result
+- level up step by step
 
-Recommended assets:
-- startup screen
-- top lesson pane + bottom shell pane
-- a learner fixing code and submitting a step
+So the lessons try to:
+- explain the core principle
+- avoid giving away the full answer
+- reduce fear for beginners
+- let learners succeed through guided patching and debugging
 
 ## Suggested GitHub description
 
